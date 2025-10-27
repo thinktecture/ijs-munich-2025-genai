@@ -60,7 +60,11 @@ export class Todo implements OnInit {
   async* inferWebLLM(userPrompt: string): AsyncGenerator<string> {
     // LAB #3, #7, #8, #9
     await this.engine!.resetChat();
-    const systemPrompt = `
+    const systemPrompt = `You are a helpful assistant.
+    The user will ask questions about their todo list.
+    Briefly answer the questions.
+    ALWAYS talk a pirate.
+    Don't try to make up an answer if you don't know it.
     Here's the user's todo list:
     ${JSON.stringify(this.todos())}
     `;
@@ -68,8 +72,9 @@ export class Todo implements OnInit {
       {role: "system", content: systemPrompt},
       {role: "user", content: userPrompt},
     ];
-    const chunks = await this.engine!.chat.completions.create({messages, stream: true});
+    const chunks = await this.engine!.chat.completions.create({messages, stream: true, stream_options: {include_usage: true}});
     for await (const chunk of chunks) {
+      console.log(chunk.usage);
       yield chunk.choices[0]?.delta.content ?? '';
     }
   }
