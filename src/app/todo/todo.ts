@@ -81,6 +81,18 @@ export class Todo implements OnInit {
 
   async* inferPromptApi(userPrompt: string) {
     // LAB #12
+    const systemPrompt = `
+    The user will ask questions about their todo list.
+    Here's the user's todo list: ${JSON.stringify(this.todos())}`;
+
+    const languageModel = await LanguageModel.create({
+      initialPrompts: [{ role: "system", content: systemPrompt }]
+    });
+
+    const chunks = languageModel.promptStreaming(userPrompt);
+    for await (const chunk of chunks) {
+      yield chunk;
+    }
   }
 
   addTodo() {
