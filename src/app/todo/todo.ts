@@ -31,6 +31,7 @@ export class Todo implements OnInit {
   protected readonly progress = signal(0);
   protected readonly ready = signal(false);
   protected engine?: MLCEngine;
+  protected readonly reply = signal('');
 
   async ngOnInit() {
     // LAB #2
@@ -42,10 +43,29 @@ export class Todo implements OnInit {
 
   async runPrompt(userPrompt: string, languageModel: string) {
     // LAB #3
+    this.reply.set('…');
+
+    const chunks = languageModel === 'webllm'
+      ? this.inferWebLLM(userPrompt)
+      : this.inferPromptApi(userPrompt);
+
+    let reply = '';
+    for await (const chunk of chunks) {
+      reply += chunk;
+      this.reply.set(reply);
+    }
   }
 
   async* inferWebLLM(userPrompt: string): AsyncGenerator<string> {
     // LAB #3, #7, #8, #9
+    await this.engine!.resetChat();
+    const messages: ChatCompletionMessageParam[] = [
+      {role: "user", content: userPrompt},
+    ];
+    const chunks = await this.engine!.chat.completions.create({messages, stream: true});
+    for await (const chunk of chunks) {
+      yield chunk.choices[0]?.delta.content ?? '';
+    }
   }
 
   async* inferPromptApi(userPrompt: string) {
