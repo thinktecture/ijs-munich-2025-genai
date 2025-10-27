@@ -14,6 +14,7 @@ export class Form {
   private readonly fb = inject(NonNullableFormBuilder);
   protected readonly formGroup = this.fb.group({
     name: '',
+    postcode: '',
     city: '',
   });
 
@@ -29,11 +30,13 @@ export class Form {
         type: 'object',
         properties: {
           name: { type: 'string' },
+          postcode: { type: 'string' },
           city: { type: 'string' }
         }
       }
     });
     console.log(result);
+    this.formGroup.setValue(JSON.parse(result));
   }
 
   async paste() {
