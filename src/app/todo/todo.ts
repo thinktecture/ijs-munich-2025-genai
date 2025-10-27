@@ -28,9 +28,16 @@ const MODEL = 'Llama-3.2-3B-Instruct-q4f32_1-MLC';
 })
 export class Todo implements OnInit {
   // LAB #2, #3, #5
+  protected readonly progress = signal(0);
+  protected readonly ready = signal(false);
+  protected engine?: MLCEngine;
 
   async ngOnInit() {
     // LAB #2
+    this.engine = await CreateMLCEngine(MODEL, {
+      initProgressCallback: ({ progress }) => this.progress.set(progress)
+    });
+    this.ready.set(true);
   }
 
   async runPrompt(userPrompt: string, languageModel: string) {
