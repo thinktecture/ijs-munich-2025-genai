@@ -32,6 +32,7 @@ export class Todo implements OnInit {
   protected readonly ready = signal(false);
   protected engine?: MLCEngine;
   protected readonly reply = signal('');
+  protected readonly todos = signal<TodoDto[]>([]);
 
   async ngOnInit() {
     // LAB #2
@@ -74,5 +75,7 @@ export class Todo implements OnInit {
 
   addTodo() {
     // LAB #5
+    const text = prompt() ?? '';
+    this.todos.update(todos => [...todos, {done: false, text}]);
   }
 }
